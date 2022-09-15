@@ -1,0 +1,8 @@
+/.libs/
+/.deps/
+/Makefile
+/potrace
+/mkbitmap
+/libpotrace.la
+*.o
+*.lo
