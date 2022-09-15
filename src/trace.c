@@ -838,6 +838,22 @@ static int adjust_vertices(privpath_t *pp) {
   return 1;
 }
 
+static void sharpen_corners(privpath_t *pp) {
+  int m = pp->m;
+  int i, j;
+  for (i=0; i<m; i++) {
+    j = mod(i-1, m);
+    double dx = pp->curve.vertex[i].x - pp->curve.vertex[j].x;
+    double dy = pp->curve.vertex[i].y - pp->curve.vertex[j].y;
+    if ((dx*dx + dy*dy) < 9) {
+      pp->curve.vertex[i].x -= dx / 2;
+      pp->curve.vertex[j].x += dx / 2;
+      pp->curve.vertex[i].y -= dy / 2;
+      pp->curve.vertex[j].y += dy / 2;
+    }
+  }
+}
+
 /* ---------------------------------------------------------------------- */
 /* Stage 4: smoothing and corner analysis (Sec. 2.3.3) */
 
@@ -1222,6 +1238,7 @@ int process_path(path_t *plist, const potrace_param_t *param, progress_t *progre
     TRY(calc_lon(p->priv));
     TRY(bestpolygon(p->priv));
     TRY(adjust_vertices(p->priv));
+    sharpen_corners(p->priv);
     if (p->sign == '-') {   /* reverse orientation of negative paths */
       reverse(&p->priv->curve);
     }
